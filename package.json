@@ -1,0 +1,22 @@
+{
+  "name": "calculator",
+  "version": "1.0.0",
+  "description": "top calculator",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bleu24/calculator.git"
+  },
+  "author": "Bryan Reamillo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bleu24/calculator/issues"
+  },
+  "homepage": "https://github.com/Bleu24/calculator#readme",
+  "dependencies": {
+    "jest": "^29.7.0"
+  }
+}
