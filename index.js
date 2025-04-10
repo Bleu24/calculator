@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const solve = (expression) => {
 
+        let result;
+
         if(false){
             let evaluatedExpression = expression.join('');
             console.log(evaluatedExpression);
@@ -23,7 +25,48 @@ document.addEventListener('DOMContentLoaded', () => {
             let answer = result();
             return answer;
         }
+        
+        //only solves three element in the stack
+
+        let threeElementArray = expression;
+
+        if (expression.length < 3) {
+            throw new ReferenceError('Array length must be at least 3');
+        }
     
+        if(expression.length >= 4) {
+            threeElementArray = expression.slice(0,3)
+            //math logic for three element array
+        }
+
+        let convertedArr = threeElementArray.map(element => parseInt(element));
+        console.log(convertedArr);
+
+        switch (threeElementArray[1]) {
+            case '+':
+                result = convertedArr[0] + convertedArr[2];
+                break;
+            case '-':
+                result = convertedArr[0] - convertedArr[2];
+                break;
+            case '*':
+                result = convertedArr[0] * convertedArr[2];
+                break;
+            case '/':
+                result = convertedArr[0] / convertedArr[2];
+                break;
+            default:
+                break;
+        }
+
+        //flushes the expression stack
+        expressionStack = [];
+        expressionStack.push({type: 'number', value: result});
+        console.log(expressionStack);
+
+        return result;
+
+
         
        
     }
@@ -47,8 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
         console.log(sanitizedExp);
         //check if any trailing operators, skips if none
-        if (rawExp[rawExp.length - 1].type === 'operator') {
-            let arrValues = rawExp.slice(0,-1);
+        if (sanitizedExp[sanitizedExp.length - 1].type === 'operator') {
+            let arrValues = sanitizedExp.slice(0,-1);
             return arrValues.map(obj => obj.value);
         }
     
@@ -84,12 +127,15 @@ document.addEventListener('DOMContentLoaded', () => {
         //if this has a trailing operator in the stack. This must run at all cost
         let sanitizedExpression = sanitize(expArr);
 
+        if (expArr.length >= 4 && sanitizedExpression) {
+            let result = solve(sanitizedExpression);
+            mainDisplay.textContent = result;
+        }
+
 
         if (operator.type === 'control' && operator.value === '=') {
             let result = solve(sanitizedExpression);
             mainDisplay.textContent = result;
-    
-            expArr = [{ type: 'number', value: result }];
           }
           
     }
