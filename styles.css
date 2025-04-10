@@ -45,8 +45,14 @@
     gap: 10px;
 }
 
-.calculator__screen-history {
+.calculator__screen-mini {
     flex-basis: 30%;
+    flex-grow: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 20px;
+    font-size: 15px;
 }
 
 .calculator__screen-current {
