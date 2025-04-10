@@ -1,47 +1,98 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
-    //imports
-    // const solve = require('./tests/solve');
 
     //declare nodes
     const keypad = document.querySelector('.calculator__keypad');
     const mainDisplay = document.querySelector('.calculator__screen-current');
+    const miniDisplay = document.querySelector('.calculator__screen-mini')
     
 
     //input-related logic
     let expressionStack = [];
-    let input = {type: null, value: []};
-    let mathExp = []
+    let input = {type: 'number', value: []};
+    let operator = {type: 'operator', value: null};  
 
-    let setExpression = (input , expArr) => {
+    miniDisplay.textContent = '';
+
+    const solve = (expression) => {
+
+        if(false){
+            let evaluatedExpression = expression.join('');
+            console.log(evaluatedExpression);
+            miniDisplay.textContent = evaluatedExpression;
+            let result = new Function(`return ${evaluatedExpression}`);
+            let answer = result();
+            return answer;
+        }
+    
+        
+       
+    }
+
+    const sanitize = (rawExp) => {
+
+        //filtering any chaining operators
+        let sanitizedExp = [];
+        
+        for (let i = 0; i < rawExp.length; i++ ) {
+            if (rawExp[i].type === 'number') {
+                sanitizedExp.push(rawExp[i]);
+            }
+    
+            if (rawExp[i+1] !== undefined) {
+                if (rawExp[i+1].type === 'number' && rawExp[i].type === 'operator') {
+                    sanitizedExp.push(rawExp[i]);
+                }
+            }
+        }
+    
+        console.log(sanitizedExp);
+        //check if any trailing operators, skips if none
+        if (rawExp[rawExp.length - 1].type === 'operator') {
+            let arrValues = rawExp.slice(0,-1);
+            return arrValues.map(obj => obj.value);
+        }
+    
+        //assign to a transformed array to only values
+        sanitizedExp = sanitizedExp.map(exp => exp.value);
+        console.log(sanitizedExp);
+    
+        return sanitizedExp;
+    }
+
+    let setExpression = (input , expArr, operator) => {
         let value = input.value.join('');
+        if (
+            input.type === 'number' &&
+            value === '' &&
+            operator.type === 'operator' &&
+            expArr.length === 0
+          ) {
+            value = ['+', '-'].includes(operator.value) ? 0 : 1;
+          }
+        
+        if (value !== '') expArr.push({ type: input.type, value: value });
+        
 
-        if(value === '' && input.type === 'number') {
-            if(input.value === '+' || input.value === '-') {
-                value = '0';
-            }
-
-            if(input.value === '÷' || input.value === '×') {
-                value = '1';
-            }
-            
+        if (operator.type === 'operator') {
+            expArr.push(operator);
         }
 
-        expArr.push({ type: input.type, value: value });
+        //reset buffer
         input.value = [];
-        console.log(expArr);
-        mainDisplay.textContent = '';
-    }
 
-    let finalizeExpression = (stack) => {
-        let filtered = stack.filter((expression) => {
 
-        });
-    }
+        //if this has a trailing operator in the stack. This must run at all cost
+        let sanitizedExpression = sanitize(expArr);
 
-    //solving expressions
-    // solve(mathExp);
+
+        if (operator.type === 'control' && operator.value === '=') {
+            let result = solve(sanitizedExpression);
+            mainDisplay.textContent = result;
     
+            expArr = [{ type: 'number', value: result }];
+          }
+          
+    }
 
     // Create keypad buttons
 
@@ -104,25 +155,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (e.target.classList.contains('calculator__button--operator')) {
+
             switch (e.target.textContent) {
                 case '+':
-                    setExpression(input, expressionStack);
-                    expressionStack.push({type: 'operator', value: '+'});
+                    operator = {type: 'operator', value: '+'}
+                    setExpression(input, expressionStack, operator);
                     console.log(expressionStack);
                     break;
                 case '-':
-                    setExpression(input, expressionStack);
-                    expressionStack.push({type: 'operator', value: '-'});
+                    operator = {type: 'operator', value: '-'}
+                    setExpression(input, expressionStack, operator);
                     console.log(expressionStack);
                     break;
                 case '×':
-                    setExpression(input, expressionStack);
-                    expressionStack.push({type: 'operator', value: '×'});
+                    operator = {type: 'operator', value: '*'}
+                    setExpression(input, expressionStack, operator);
                     console.log(expressionStack);
                     break;
                 case '÷':
-                    setExpression(input, expressionStack);
-                    expressionStack.push({type: 'operator', value: '÷'});
+                    operator = {type: 'operator', value: '/'}
+                    setExpression(input, expressionStack, operator);
                     console.log(expressionStack);
                     break;
                 default:
@@ -142,7 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     break;
                 case '=':
-                    
+                    operator = {type: 'control', value: '='};
+                    setExpression(input, expressionStack, operator);
                     break;
                 default:
                     break;
