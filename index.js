@@ -40,6 +40,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if(isRegularMode) {
 
+            
+            
+            // check if there is one element left, it means it's the result of the whole expression
+            if (expression.length === 1) {
+                let answer = parseFloat(expression[0]);
+                return answer;
+            }
+
+            //extract operands and operators
+            let operand1 = parseFloat(expression[0]); //used parseFloat for flexibility
+            let operator = expression[1];
+            let operand2 = parseFloat(expression[2]);
+
+            //operate expression via switch
+            let answer;
+            switch (operator) {
+                case '+':
+                    answer = operand1 + operand2;
+                    break;
+                case '-':
+                    answer = operand1 - operand2;
+                    break;
+                case '*':
+                    answer = operand1 * operand2;
+                    break;
+                case '/':
+                    answer = operand1 / operand2;
+                    break;
+                default:
+                    //nothing here yet
+                    break;
+            }
+
+            let remainingExpression = expression.slice(3);
+            let nextExpression = [answer, ...remainingExpression]; //set new expression with result and the remaining tokens
+
+            return solve(nextExpression);
+
         }
         
         
@@ -96,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
             expArr.push(operator);
         }
 
-
         //reset buffer
         input.value = [];
 
@@ -104,15 +141,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // to fix any unwanted inputs
         let sanitizedExpression = sanitize(expArr);
         console.log("Im sanitize bruh     " + sanitizedExpression);
-        
+
        
         if (operator.type === 'control' && operator.value === '=') {
             let result = solve(sanitizedExpression);
             mainDisplay.textContent = result;  
           }
         
-          
-          
     }
 
     // Create keypad buttons
