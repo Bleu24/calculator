@@ -1,4 +1,4 @@
-const { solveFlatInPEMDAS } = require("./utils/solve");
+import { solveFlatInPEMDAS } from './utils/solve';
 
 document.addEventListener('DOMContentLoaded', () => {
 
