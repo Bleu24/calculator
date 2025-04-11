@@ -64,6 +64,29 @@
     font-size: xx-large;
 }
 
+.mode-button {
+    display: flex;
+    position: absolute;
+    top: 5rem;
+    padding: 5px;
+    width: 150px;   
+    height: 40px;
+}
+
+.mode-button__icon {
+    flex-basis: 20%;
+    flex-shrink: 0;
+}
+
+.mode-button__text {
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 11px;
+    flex-grow: 1;
+}
+
 .calculator__button {
     display: flex;
     justify-content: center;
