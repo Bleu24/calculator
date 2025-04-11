@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeIcon = document.querySelector('.mode-button__icon');
     const modeText = document.querySelector('.mode-button__text');
 
-    //mode state (default state)
+    //modes state (default state)
     let isRegularMode = modeButton.dataset.mode;
     
 
@@ -115,38 +115,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return sanitizedExp;
     }
 
-    let setExpression = (input , expArr, operator) => {
+    let setExpression = (input , operator) => {
         let value = input.value.join('');
         if (
             input.type === 'number' &&
             value === '' &&
             operator.type === 'operator' &&
-            expArr.length === 0
+            expressionStack.length === 0
           ) {
             value = ['+', '-'].includes(operator.value) ? 0 : 1;
           }
 
         
         
-        if (value !== '') expArr.push({ type: input.type, value: value });
+        if (value !== '') expressionStack.push({ type: input.type, value: value });
 
-        if (operator.type === 'operator') {
+        if (operator.type === 'operator' && operator !== null) {
             expArr.push(operator);
         }
-
-        //reset buffer
-        input.value = [];
-
-
-        // to fix any unwanted inputs
-        let sanitizedExpression = sanitize(expArr);
-        console.log("Im sanitize bruh     " + sanitizedExpression);
-
-       
-        if (operator.type === 'control' && operator.value === '=') {
-            let result = solve(sanitizedExpression);
-            mainDisplay.textContent = result;  
-          }
         
     }
 
