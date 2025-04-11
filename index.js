@@ -28,7 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if(isRegularMode) {
-            return dynamicSolve();
+            return dynamicSolve(tokens, result => {
+                mainDisplay.textContent = result;
+            });
         }
     }
 
@@ -80,6 +82,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (token.type === 'operator' && token !== null) {
             expressionStack.push(token);
         }
+
+        if (token && token.type === 'operator') {
+            if (
+                expressionStack.length &&
+                expressionStack[expressionStack.length - 1].type === 'operator'
+            ) {
+                // Replace chained operator
+                expressionStack[expressionStack.length - 1] = token;
+            } else {
+                expressionStack.push(token);
+            }
+        }
+    
         
         input.value = [];
     }
@@ -167,22 +182,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 case '+':
                     operator = {type: 'operator', value: '+'}
                     setExpression(input, operator);
-                    console.log(expressionStack);
+                    solve(expressionStack);
                     break;
                 case '-':
                     operator = {type: 'operator', value: '-'}
                     setExpression(input, operator);
-                    console.log(expressionStack);
+                    solve(expressionStack);
                     break;
                 case '×':
                     operator = {type: 'operator', value: '*'}
                     setExpression(input, operator);
-                    console.log(expressionStack);
+                    solve(expressionStack);
                     break;
                 case '÷':
                     operator = {type: 'operator', value: '/'}
                     setExpression(input, operator);
-                    console.log(expressionStack);
+                    solve(expressionStack);
                     break;
                 default:
                     break;
