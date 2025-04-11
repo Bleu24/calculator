@@ -79,24 +79,23 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (value !== '') expressionStack.push({ type: input.type, value: value });
 
-        if (token.type === 'operator' && token !== null) {
-            expressionStack.push(token);
-        }
-
         if (token && token.type === 'operator') {
-            if (
-                expressionStack.length &&
-                expressionStack[expressionStack.length - 1].type === 'operator'
-            ) {
-                // Replace chained operator
-                expressionStack[expressionStack.length - 1] = token;
-            } else {
-                expressionStack.push(token);
-            }
-        }
+            const last = expressionStack[expressionStack.length - 1];
     
+            if (last && last.type === 'operator') {
+                expressionStack[expressionStack.length - 1] = token;
+                input.value = []; 
+                return; // exit early, no solve yet
+            }
+    
+            // Otherwise, push new operator
+            expressionStack.push(token);
+            solve(expressionStack);
+        }
         
+        //reset calculator input buffer
         input.value = [];
+           
     }
 
     // Create keypad buttons
@@ -182,22 +181,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 case '+':
                     operator = {type: 'operator', value: '+'}
                     setExpression(input, operator);
-                    solve(expressionStack);
+                    
                     break;
                 case '-':
                     operator = {type: 'operator', value: '-'}
                     setExpression(input, operator);
-                    solve(expressionStack);
+                    
                     break;
                 case '×':
                     operator = {type: 'operator', value: '*'}
                     setExpression(input, operator);
-                    solve(expressionStack);
+                    
                     break;
                 case '÷':
                     operator = {type: 'operator', value: '/'}
                     setExpression(input, operator);
-                    solve(expressionStack);
+                    
                     break;
                 default:
                     break;
