@@ -84,35 +84,36 @@ document.addEventListener('DOMContentLoaded', () => {
        
     }
 
-    const sanitize = (rawExp) => {
+    //this is purely for flat expressions and not dynamic solving
+    const sanitize = (stack) => {
 
         //filtering any chaining operators
-        let sanitizedExp = [];
+        let sanitizedStack = [];
         
-        for (let i = 0; i < rawExp.length; i++ ) {
-            if (rawExp[i].type === 'number') {
-                sanitizedExp.push(rawExp[i]);
+        for (let i = 0; i < stack.length; i++ ) {
+            if (stack[i].type === 'number') {
+                sanitizedStack.push(stack[i]);
             }
     
-            if (rawExp[i+1] !== undefined) {
-                if (rawExp[i+1].type === 'number' && rawExp[i].type === 'operator') {
-                    sanitizedExp.push(rawExp[i]);
+            if (stack[i+1] !== undefined) {
+                if (stack[i+1].type === 'number' && stack[i].type === 'operator') {
+                    sanitizedStack.push(stack[i]);
                 }
             }
         }
     
         
         //check if any trailing operators, skips if none
-        if (sanitizedExp[sanitizedExp.length - 1].type === 'operator') {
-            let arrValues = sanitizedExp.slice(0,-1);
+        if (sanitizedStack[sanitizedStack.length - 1].type === 'operator') {
+            let arrValues = sanitizedStack.slice(0,-1);
             return arrValues.map(obj => obj.value);
         }
     
         //assign to a transformed array to only values
-        sanitizedExp = sanitizedExp.map(exp => exp.value);
+        sanitizedStack = sanitizedStack.map(exp => exp.value);
         
     
-        return sanitizedExp;
+        return sanitizedStack;
     }
 
     let setExpression = (input , operator) => {
