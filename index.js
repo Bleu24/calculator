@@ -3,7 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     //declare nodes
     const keypad = document.querySelector('.calculator__keypad');
     const mainDisplay = document.querySelector('.calculator__screen-current');
-    const miniDisplay = document.querySelector('.calculator__screen-mini')
+    const miniDisplay = document.querySelector('.calculator__screen-mini');
+    const modeButton = document.querySelector('.mode-button');
+    const modeIcon = document.querySelector('.mode-button__icon');
+    const modeText = document.querySelector('.mode-button__text');
+
+    //mode state (default state)
+    let isRegularMode = modeButton.dataset.mode;
     
 
     //input-related logic
@@ -15,58 +21,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const solve = (expression) => {
 
-        let result;
+        if(!isRegularMode) {
+            let result;
 
-        if(false){
             let evaluatedExpression = expression.join('');
             console.log(evaluatedExpression);
             miniDisplay.textContent = evaluatedExpression;
-            let result = new Function(`return ${evaluatedExpression}`);
+            result = new Function(`return ${evaluatedExpression}`);
             let answer = result();
+
+            //flushes the stack and push the result onto a fresh stack
+            expressionStack = [];
+            expressionStack.push({type: 'number', value: answer});
+            console.log(expressionStack);
+
             return answer;
         }
+
+        if(isRegularMode) {
+
+        }
         
-        //only solves three element in the stack
-
-        let threeElementArray = expression;
-
-        if (expression.length < 3) {
-            throw new ReferenceError('Array length must be at least 3');
-        }
-    
-        if(expression.length >= 4) {
-            threeElementArray = expression.slice(0,3)
-            //math logic for three element array
-        }
-
-        let convertedArr = threeElementArray.map(element => parseInt(element));
-        console.log(convertedArr);
-
-        switch (threeElementArray[1]) {
-            case '+':
-                result = convertedArr[0] + convertedArr[2];
-                break;
-            case '-':
-                result = convertedArr[0] - convertedArr[2];
-                break;
-            case '*':
-                result = convertedArr[0] * convertedArr[2];
-                break;
-            case '/':
-                result = convertedArr[0] / convertedArr[2];
-                break;
-            default:
-                break;
-        }
-
-        //flushes the expression stack
-        expressionStack = [];
-        expressionStack.push({type: 'number', value: result});
-        console.log(expressionStack);
-
-        return result;
-
-
         
        
     }
@@ -88,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     
-        console.log(sanitizedExp);
+        
         //check if any trailing operators, skips if none
         if (sanitizedExp[sanitizedExp.length - 1].type === 'operator') {
             let arrValues = sanitizedExp.slice(0,-1);
@@ -97,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
         //assign to a transformed array to only values
         sanitizedExp = sanitizedExp.map(exp => exp.value);
-        console.log(sanitizedExp);
+        
     
         return sanitizedExp;
     }
@@ -112,31 +87,31 @@ document.addEventListener('DOMContentLoaded', () => {
           ) {
             value = ['+', '-'].includes(operator.value) ? 0 : 1;
           }
+
+        
         
         if (value !== '') expArr.push({ type: input.type, value: value });
-        
 
         if (operator.type === 'operator') {
             expArr.push(operator);
         }
 
+
         //reset buffer
         input.value = [];
 
 
-        //if this has a trailing operator in the stack. This must run at all cost
+        // to fix any unwanted inputs
         let sanitizedExpression = sanitize(expArr);
-
-        if (expArr.length >= 4 && sanitizedExpression) {
-            let result = solve(sanitizedExpression);
-            mainDisplay.textContent = result;
-        }
-
-
+        console.log("Im sanitize bruh     " + sanitizedExpression);
+        
+       
         if (operator.type === 'control' && operator.value === '=') {
             let result = solve(sanitizedExpression);
-            mainDisplay.textContent = result;
+            mainDisplay.textContent = result;  
           }
+        
+          
           
     }
 
@@ -190,7 +165,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-    keypad.addEventListener('click', e => {
+    modeButton.addEventListener('click', () => {
+        expressionStack = [];
+        input.value = [];
+        mainDisplay.textContent = '';
+        if(isRegularMode) {
+            isRegularMode = false;
+            modeButton.dataset.mode = false;
+            modeText.textContent = "PEMDAS";
+        } else {
+            isRegularMode = true;
+            modeButton.dataset.mode = true;
+            modeText.textContent = "Regular Calculator";
+        }
+    });
+    
+
+    keypad.addEventListener('click', (e) => {
        
         if (e.target.classList.contains('calculator__button--number')) {
             input.type = 'number';
