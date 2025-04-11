@@ -1,4 +1,4 @@
-import { solveFlatInPEMDAS } from './utils/solve';
+import { dynamicSolve, solveFlatInPEMDAS } from './utils/solve.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     //input-related logic
     let expressionStack = [];
     let input = {type: 'number', value: []};
-    let operator = {type: 'operator', value: null};  
 
     miniDisplay.textContent = '';
 
@@ -29,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if(isRegularMode) {
-
+            return dynamicSolve();
         }
     }
 
@@ -65,25 +64,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return sanitizedStack;
     }
 
-    let setExpression = (input , operator) => {
+    let setExpression = (input , token) => {
         let value = input.value.join('');
         if (
             input.type === 'number' &&
             value === '' &&
-            operator.type === 'operator' &&
+            token.type === 'operator' &&
             expressionStack.length === 0
           ) {
-            value = ['+', '-'].includes(operator.value) ? 0 : 1;
+            value = ['+', '-'].includes(token.value) ? 0 : 1;
           }
-
-        
         
         if (value !== '') expressionStack.push({ type: input.type, value: value });
 
-        if (operator.type === 'operator' && operator !== null) {
-            expArr.push(operator);
+        if (token.type === 'operator' && token !== null) {
+            expressionStack.push(token);
         }
         
+        input.value = [];
     }
 
     // Create keypad buttons
@@ -153,7 +151,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
 
     keypad.addEventListener('click', (e) => {
-       
+        
+        let operator;
+
         if (e.target.classList.contains('calculator__button--number')) {
             input.type = 'number';
             input.value.push(e.target.textContent);
@@ -163,26 +163,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (e.target.classList.contains('calculator__button--operator')) {
-
             switch (e.target.textContent) {
                 case '+':
                     operator = {type: 'operator', value: '+'}
-                    setExpression(input, expressionStack, operator);
+                    setExpression(input, operator);
                     console.log(expressionStack);
                     break;
                 case '-':
                     operator = {type: 'operator', value: '-'}
-                    setExpression(input, expressionStack, operator);
+                    setExpression(input, operator);
                     console.log(expressionStack);
                     break;
                 case '×':
                     operator = {type: 'operator', value: '*'}
-                    setExpression(input, expressionStack, operator);
+                    setExpression(input, operator);
                     console.log(expressionStack);
                     break;
                 case '÷':
                     operator = {type: 'operator', value: '/'}
-                    setExpression(input, expressionStack, operator);
+                    setExpression(input, operator);
                     console.log(expressionStack);
                     break;
                 default:
@@ -202,8 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     break;
                 case '=':
-                    operator = {type: 'control', value: '='};
-                    setExpression(input, expressionStack, operator);
+                    control = {type: 'control', value: '='};
+                    
                     break;
                 default:
                     break;
