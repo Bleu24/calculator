@@ -1,3 +1,5 @@
+const { solveFlatInPEMDAS } = require("./utils/solve");
+
 document.addEventListener('DOMContentLoaded', () => {
 
     //declare nodes
@@ -19,69 +21,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     miniDisplay.textContent = '';
 
-    const solve = (expression) => {
+    const solve = (tokens) => {
 
+        //in pemdas mode
         if(!isRegularMode) {
-            let result;
-
-            let evaluatedExpression = expression.join('');
-            console.log(evaluatedExpression);
-            miniDisplay.textContent = evaluatedExpression;
-            result = new Function(`return ${evaluatedExpression}`);
-            let answer = result();
-
-            //flushes the stack and push the result onto a fresh stack
-            expressionStack = [];
-            expressionStack.push({type: 'number', value: answer});
-            console.log(expressionStack);
-
-            return answer;
+            return solveFlatInPEMDAS(sanitize(tokens));
         }
 
         if(isRegularMode) {
 
-            
-            
-            // check if there is one element left, it means it's the result of the whole expression
-            if (expression.length === 1) {
-                let answer = parseFloat(expression[0]);
-                return answer;
-            }
-
-            //extract operands and operators
-            let operand1 = parseFloat(expression[0]); //used parseFloat for flexibility
-            let operator = expression[1];
-            let operand2 = parseFloat(expression[2]);
-
-            //operate expression via switch
-            let answer;
-            switch (operator) {
-                case '+':
-                    answer = operand1 + operand2;
-                    break;
-                case '-':
-                    answer = operand1 - operand2;
-                    break;
-                case '*':
-                    answer = operand1 * operand2;
-                    break;
-                case '/':
-                    answer = operand1 / operand2;
-                    break;
-                default:
-                    //nothing here yet
-                    break;
-            }
-
-            let remainingExpression = expression.slice(3);
-            let nextExpression = [answer, ...remainingExpression]; //set new expression with result and the remaining tokens
-
-            return solve(nextExpression);
-
         }
-        
-        
-       
     }
 
     //this is purely for flat expressions and not dynamic solving
