@@ -17,8 +17,40 @@ document.addEventListener('DOMContentLoaded', () => {
     //input-related logic
     let expressionStack = [];
     let input = {type: 'number', value: []};
+    let lastValidResult = {value: 0};
 
     miniDisplay.textContent = '';
+
+
+    const processEquals = () => {
+        if (input.value.length > 0) {
+            expressionStack.push({
+                type: 'number',
+                value: input.value.join('')
+            });
+
+            input.value = [];
+        }
+
+        //removes trailing operator
+        if (expressionStack.at(-1)?.type === 'operator') {
+            expressionStack.pop();
+        }
+
+        let result = isRegularMode ? 
+                    dynamicSolve(expressionStack, lastValidResult, result => {
+                        mainDisplay.textContent = result;
+                    }) :
+                    solveFlatInPEMDAS(sanitize(expressionStack));
+        
+        
+        if (result === null) return;
+
+        mainDisplay.textContent = result;
+        miniDisplay.textContent = result;
+
+
+    }
 
     const solve = (tokens) => {
 
@@ -28,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if(isRegularMode) {
-            return dynamicSolve(tokens, result => {
+            return dynamicSolve(tokens, lastValidResult, result => {
                 mainDisplay.textContent = result;
             });
         }
@@ -215,8 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     break;
                 case '=':
-                    control = {type: 'control', value: '='};
-                    
+                    processEquals();
                     break;
                 default:
                     break;
