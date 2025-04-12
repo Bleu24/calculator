@@ -8,15 +8,23 @@ export const solveFlatInPEMDAS = (expression) => {
 
 }
 
-export const dynamicSolve = (expression, renderResult) => {
-        if (expression.length < 3) return;
+export const dynamicSolve = (expression, lastValidResult, renderResult) => {
+        if (expression.length < 3) return null;
 
         if (
-                expression[0].type !== 'number' && 
-                expression[1].type !== 'operator' &&
+                expression[0].type !== 'number' || 
+                expression[1].type !== 'operator' ||
                 expression[2].type !== 'number'
         ) 
-        { return; }
+        { 
+                if (typeof lastValidResult.value === 'number') {
+                        expression.length = 0;
+                        expression.push({type: 'number', value: lastValidResult.value});
+                        renderResult(lastValidResult.value);
+                }
+
+                return null; 
+        }
 
         let firstThree = expression.slice(0,3);
 
@@ -33,9 +41,12 @@ export const dynamicSolve = (expression, renderResult) => {
             default: return;
         }
 
+        lastValidResult.value = result;
         expression.splice(0, 3, {type: 'number', value: result});
 
         renderResult(result);
+
+        return result;
 
 }
 
