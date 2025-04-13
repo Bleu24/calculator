@@ -21,6 +21,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     miniDisplay.textContent = '';
 
+    const overwrite = () => {
+        const last = expressionStack.at(-1);
+
+        const shouldFlush =
+        last &&
+        last.type === 'number' &&
+        input.value.length === 0 &&
+        expressionStack.length === 1 &&
+        lastValidResult.value !== undefined;
+
+        //works if user wants to overwrite a result
+        if(shouldFlush){
+            expressionStack.length = 0;
+            input.value = [];
+       }
+    }
+
 
     const processEquals = () => {
         if (input.value.length > 0) {
@@ -111,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (value !== '') expressionStack.push({ type: input.type, value: value });
 
+        //replaces the current token with new token
         if (token && token.type === 'operator') {
             const last = expressionStack[expressionStack.length - 1];
     
@@ -201,6 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let operator;
 
         if (e.target.classList.contains('calculator__button--number')) {
+
+            overwrite();
+
             input.type = 'number';
             input.value.push(e.target.textContent);
             let displayedVal = input.value.join('');
@@ -228,6 +249,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 case '÷':
                     operator = {type: 'operator', value: '/'}
                     setExpression(input, operator);
+                    break;
+                case '.':
+                    overwrite();
+                    if (!input.value.includes('.')) {
+                        if(input.value.length === 0) {
+                            input.value.push('0');
+                        }
+                        input.type = 'number';
+                        input.value.push('.');
+                        mainDisplay.textContent = input.value.join('');
+                    }
+                    break;
+                case '±':
+                    if (expressionStack.at(-1)?.type === 'number') {
+                        let lastResult = lastValidResult.value.toString();
+                        let tempBuffer = lastResult.split('');
+                        if(!lastResult.at(0).includes('-')) {
+                            tempBuffer.unshift('-');
+                            mainDisplay.textContent = tempBuffer.join('');
+                        } else {
+                            tempBuffer.shift();
+                            mainDisplay.textContent = tempBuffer.join('');
+                        }
+                        // After updating the display:
+                        lastValidResult.value = parseFloat(tempBuffer.join(''));
+                        expressionStack[expressionStack.length - 1].value = lastValidResult.value;
+                    } else {
+                        if (input.value.length === 0) {
+                            // Add negative sign to empty input
+                            input.type = 'number';
+                            input.value.push('-');
+                            } else if (input.value[0] === '-') {
+                            // Remove negative sign from negative number
+                            input.value.shift();
+                        } else {
+                            // Add negative sign to positive number
+                            input.value.unshift('-');
+                        }
+                            mainDisplay.textContent = input.value.join('');  
+                    }
+                    break;
+                case '1/x':
+                    if(input.value.length >= 0) {
+                        let value = parseFloat(input.value.join(''));
+                        if(value === 0 || isNaN(value)){
+                            mainDisplay.textContent = "Undefined";
+                        } else {
+                            let reciprocal = 1 / value;
+                            expressionStack.push({type: 'number', value: reciprocal});
+                            input.value = [];
+                            mainDisplay.textContent = reciprocal;
+                        }
+                    }
+                    break;
+                case 'x²':
+                    
+                    break;
+                case '%':
+                    
+                    break;
+                case '√x':
                     
                     break;
                 default:
@@ -238,13 +320,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('calculator__button--control')) {
             switch (e.target.textContent) {
                 case 'CE':
-                   
+                    if(input.value.length > 0) {
+                        input.value = [];
+                        mainDisplay.textContent = '';
+                    }
                     break;
                 case 'C':
-                    
+                    expressionStack = [];
+                    input.value = [];
+                    mainDisplay.textContent = '';
+                    miniDisplay.textContent = '';
                     break;
                 case '⌫':
-                    
+                    if(input.value.length > 0) {
+                        input.value.pop();
+                        mainDisplay.textContent = input.value.join('');
+                    }
                     break;
                 case '=':
                     processEquals();
