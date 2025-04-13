@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap');
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -36,6 +38,7 @@
 }
 
 .calculator__keypad {
+    font-family: 'Orbitron', sans-serif;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -47,21 +50,29 @@
 
 .calculator__screen-mini {
     flex-basis: 30%;
+    font-family: 'Orbitron', sans-serif;
     flex-grow: 0;
+    height: 40px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
     padding: 20px;
     font-size: 15px;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .calculator__screen-current {
     flex-grow: 1;
+    font-family: 'Orbitron', sans-serif;
+    height: 50px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
     padding: 20px;
     font-size: xx-large;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .mode-button {
