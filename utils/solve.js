@@ -37,7 +37,8 @@ export const dynamicSolve = (expression, lastValidResult, renderResult) => {
             case '+': result = operand1 + operand2; break;
             case '-': result = operand1 - operand2; break;
             case '*': result = operand1 * operand2; break;
-            case '/': result = operand1 / operand2; break;
+            case '/': result = operand1 / operand2;
+            break;
             default: return;
         }
 
