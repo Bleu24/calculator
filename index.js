@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainDisplay = document.querySelector('.calculator__screen-current');
     const miniDisplay = document.querySelector('.calculator__screen-mini');
     const modeButton = document.querySelector('.mode-button');
-    const modeIcon = document.querySelector('.mode-button__icon');
     const modeText = document.querySelector('.mode-button__text');
 
     //modes state (default state)
@@ -214,12 +213,10 @@ document.addEventListener('DOMContentLoaded', () => {
             isRegularMode = false;
             modeButton.dataset.mode = false;
             modeText.textContent = "PEMDAS";
-            modeIcon.textContent = "📊";
         } else {
             isRegularMode = true;
             modeButton.dataset.mode = true;
             modeText.textContent = "Regular Calculator";
-            modeIcon.textContent = "🔢";
         }
     });
     
