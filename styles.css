@@ -97,7 +97,6 @@
     display: flex;
     position: absolute;
     top: 80px;
-    right: calc(50% - 300px - 80px);
     width: 160px;
     height: 45px;
     background: linear-gradient(145deg, #2e2e33, #1e1e21);
@@ -114,15 +113,6 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     background: linear-gradient(145deg, #33333a, #232328);
-}
-
-.mode-button__icon {
-    flex-basis: 20%;
-    flex-shrink: 0;
-    font-size: 18px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .mode-button__text {
