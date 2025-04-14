@@ -116,6 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let setExpression = (input , token) => {
+        if (input.value.at(-1) === '.') {
+            input.value.pop();
+        }
+
         let value = input.value.join('');
         if (
             input.type === 'number' &&
@@ -126,6 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
             value = ['+', '-'].includes(token.value) ? 0 : 1;
           }
         
+
+
         if (value !== '') expressionStack.push({ type: input.type, value: value });
 
         //replaces the current token with new token
@@ -291,26 +297,111 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     break;
                 case '1/x':
-                    if(input.value.length >= 0) {
-                        let value = parseFloat(input.value.join(''));
-                        if(value === 0 || isNaN(value)){
-                            mainDisplay.textContent = "Undefined";
+                    if (expressionStack.at(-1)?.type === 'number' && input.value.length === 0) {
+                        let lastResult = expressionStack.at(-1).value;
+                        if (lastResult === 0 || isNaN(lastResult)) {
+                            mainDisplay.textContent = 'Undefined';
                         } else {
-                            let reciprocal = 1 / value;
-                            expressionStack.push({type: 'number', value: reciprocal});
-                            input.value = [];
+                            let reciprocal = 1 / lastResult;
+                            let shifted = expressionStack.shift();
+                            expressionStack.unshift({type: shifted.type, value: reciprocal})
                             mainDisplay.textContent = reciprocal;
+                        }
+                    } else {
+                        if(input.value.length >= 0) {
+                            let value = parseFloat(input.value.join(''));
+                            if(value === 0 || isNaN(value)){
+                                mainDisplay.textContent = "Undefined";
+                            } else {
+                                let reciprocal = 1 / value;
+                                expressionStack.push({type: 'number', value: reciprocal});
+                                input.value = [];
+                                mainDisplay.textContent = reciprocal;
+                            }
                         }
                     }
                     break;
                 case 'x²':
-                    
+                    if (expressionStack.at(-1)?.type === 'number' && input.value.length === 0) {
+                        let lastResult = expressionStack.at(-1).value;
+                        if (isNaN(lastResult)) {
+                            mainDisplay.textContent = 'NaN';
+                        } else {
+                            let squared = Math.pow(lastResult,2);
+                            let shifted = expressionStack.shift();
+                            expressionStack.unshift({type: shifted.type, value: squared});
+                            mainDisplay.textContent = squared;
+                        }
+                    } else {
+                        if (input.value.length >= 0) {
+                            let value = parseFloat(input.value.join(''));
+                            let squared = Math.pow(value, 2);
+                            expressionStack.push({type: 'number', value: squared});
+                            input.value = [];
+                            mainDisplay.textContent = squared;
+                        }
+                    }
                     break;
                 case '%':
-                    
+                    if (expressionStack.length >= 2 && 
+                        expressionStack.at(-1)?.type === 'operator' && 
+                        expressionStack.at(-2)?.type === 'number' && 
+                        input.value.length > 0) {
+                        // Context: num1 op num2%
+                        let num1 = parseFloat(expressionStack.at(-2).value); // First number
+                        let operator = expressionStack.at(-1).value;         // Operator
+                        let num2 = parseFloat(input.value.join(''));         // Current input
+                        let result;
+                        
+                        // Calculate based on operation context
+                        if (operator === '+' || operator === '-') {
+                            // For +/-, calculate percentage of first number
+                            result = (num2 / 100) * num1;
+                        } else {
+                            // For ×/÷, just convert to decimal
+                            result = num2 / 100;
+                        }
+                        
+                        input.value = result.toString().split('');
+                        mainDisplay.textContent = result;
+                    } else if (input.value.length > 0) {
+                        // Simple percentage (convert to decimal)
+                        let value = parseFloat(input.value.join(''));
+                        let percentage = value / 100;
+                        input.value = percentage.toString().split('');
+                        mainDisplay.textContent = percentage;
+                    } else if (expressionStack.at(-1)?.type === 'number') {
+                        // Percentage of result in expression stack
+                        let value = parseFloat(expressionStack.at(-1).value);
+                        let percentage = value / 100;
+                        expressionStack[expressionStack.length - 1].value = percentage;
+                        mainDisplay.textContent = percentage;
+                    }
                     break;
                 case '√x':
-                    
+                    if (expressionStack.at(-1)?.type === 'number' && input.value.length === 0) {
+                        let lastResult = expressionStack.at(-1).value;
+                        if (lastResult < 0 || isNaN(lastResult)) {
+                            mainDisplay.textContent = 'NaN';
+                        } else {
+                            let sqrt = Math.sqrt(lastResult);
+                            let shifted = expressionStack.shift();
+                            expressionStack.unshift({type: shifted.type, value: sqrt});
+                            mainDisplay.textContent = sqrt;
+                        }
+                    } else {
+                        if (input.value.length >= 0) {
+                            let value = parseFloat(input.value.join(''));
+                            if (value < 0 || isNaN(value)) {
+                                mainDisplay.textContent = "NaN";
+                            } else {
+                                let sqrt = Math.sqrt(value);
+                                expressionStack.push({type: 'number', value: sqrt});
+                                input.value = [];
+                                mainDisplay.textContent = sqrt;
+                            }
+                        }
+                    }
                     break;
                 default:
                     break;
@@ -328,6 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'C':
                     expressionStack = [];
                     input.value = [];
+                    lastValidResult.value = 0;
                     mainDisplay.textContent = '';
                     miniDisplay.textContent = '';
                     break;
