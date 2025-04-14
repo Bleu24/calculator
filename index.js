@@ -1,4 +1,6 @@
 import { dynamicSolve, solveFlatInPEMDAS } from './utils/solve.js';
+import { resetCalculatorAfterError } from './utils/recoverFromError.js';
+import { formatNumber } from './utils/roundToTwo.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -20,32 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastValidResult = {value: 0};
 
     miniDisplay.textContent = '';
-
-    
-    const resetCalculatorAfterError = () => {
-        setTimeout(() => {
-            expressionStack = [];
-            input.value = [];
-            lastValidResult.value = 0;
-            mainDisplay.textContent = '';
-            miniDisplay.textContent = '';
-        }, 1500);
-    };
-
-   
-    const formatNumber = (num) => {
-        
-        if (isNaN(num) || !isFinite(num)) return num;
-        
-    
-        num = Number(num);
-        
-        // Check if number has decimal 
-        if (Number.isInteger(num)) return num.toString();
-        
-        // Format to 2 decimal places
-        return num.toFixed(2).replace(/\.00$/, '');
-    };
 
     const overwrite = () => {
         const last = expressionStack.at(-1);
@@ -238,10 +214,12 @@ document.addEventListener('DOMContentLoaded', () => {
             isRegularMode = false;
             modeButton.dataset.mode = false;
             modeText.textContent = "PEMDAS";
+            modeIcon.textContent = "📊";
         } else {
             isRegularMode = true;
             modeButton.dataset.mode = true;
             modeText.textContent = "Regular Calculator";
+            modeIcon.textContent = "🔢";
         }
     });
     
