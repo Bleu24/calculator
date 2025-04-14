@@ -21,6 +21,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     miniDisplay.textContent = '';
 
+    
+    const resetCalculatorAfterError = () => {
+        setTimeout(() => {
+            expressionStack = [];
+            input.value = [];
+            lastValidResult.value = 0;
+            mainDisplay.textContent = '';
+            miniDisplay.textContent = '';
+        }, 1500);
+    };
+
+   
+    const formatNumber = (num) => {
+        
+        if (isNaN(num) || !isFinite(num)) return num;
+        
+    
+        num = Number(num);
+        
+        // Check if number has decimal 
+        if (Number.isInteger(num)) return num.toString();
+        
+        // Format to 2 decimal places
+        return num.toFixed(2).replace(/\.00$/, '');
+    };
+
     const overwrite = () => {
         const last = expressionStack.at(-1);
 
@@ -56,15 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let result = isRegularMode ? 
                     dynamicSolve(expressionStack, lastValidResult, result => {
-                        mainDisplay.textContent = result;
+                        mainDisplay.textContent = formatNumber(result);
                     }) :
                     solveFlatInPEMDAS(sanitize(expressionStack));
         
         
         if (result === null) return;
 
-        mainDisplay.textContent = result;
-        miniDisplay.textContent = result;
+        mainDisplay.textContent = formatNumber(result);
+        miniDisplay.textContent = formatNumber(result);
 
 
     }
@@ -78,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if(isRegularMode) {
             return dynamicSolve(tokens, lastValidResult, result => {
-                mainDisplay.textContent = result;
+                mainDisplay.textContent = formatNumber(result);
             });
         }
     }
@@ -231,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
             input.type = 'number';
             input.value.push(e.target.textContent);
             let displayedVal = input.value.join('');
-            mainDisplay.textContent = displayedVal;
+            mainDisplay.textContent = formatNumber(displayedVal);
             console.log(input);
         }
 
@@ -264,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         input.type = 'number';
                         input.value.push('.');
-                        mainDisplay.textContent = input.value.join('');
+                        mainDisplay.textContent = formatNumber(input.value.join(''));
                     }
                     break;
                 case '±':
@@ -273,10 +299,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         let tempBuffer = lastResult.split('');
                         if(!lastResult.at(0).includes('-')) {
                             tempBuffer.unshift('-');
-                            mainDisplay.textContent = tempBuffer.join('');
+                            mainDisplay.textContent = formatNumber(tempBuffer.join(''));
                         } else {
                             tempBuffer.shift();
-                            mainDisplay.textContent = tempBuffer.join('');
+                            mainDisplay.textContent = formatNumber(tempBuffer.join(''));
                         }
                         // After updating the display:
                         lastValidResult.value = parseFloat(tempBuffer.join(''));
@@ -293,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             // Add negative sign to positive number
                             input.value.unshift('-');
                         }
-                            mainDisplay.textContent = input.value.join('');  
+                            mainDisplay.textContent = formatNumber(input.value.join(''));  
                     }
                     break;
                 case '1/x':
@@ -301,22 +327,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         let lastResult = expressionStack.at(-1).value;
                         if (lastResult === 0 || isNaN(lastResult)) {
                             mainDisplay.textContent = 'Undefined';
+                            resetCalculatorAfterError();
                         } else {
                             let reciprocal = 1 / lastResult;
                             let shifted = expressionStack.shift();
                             expressionStack.unshift({type: shifted.type, value: reciprocal})
-                            mainDisplay.textContent = reciprocal;
+                            mainDisplay.textContent = formatNumber(reciprocal);
                         }
                     } else {
                         if(input.value.length >= 0) {
                             let value = parseFloat(input.value.join(''));
                             if(value === 0 || isNaN(value)){
                                 mainDisplay.textContent = "Undefined";
+                                resetCalculatorAfterError();
                             } else {
                                 let reciprocal = 1 / value;
                                 expressionStack.push({type: 'number', value: reciprocal});
                                 input.value = [];
-                                mainDisplay.textContent = reciprocal;
+                                mainDisplay.textContent = formatNumber(reciprocal);
                             }
                         }
                     }
@@ -326,11 +354,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         let lastResult = expressionStack.at(-1).value;
                         if (isNaN(lastResult)) {
                             mainDisplay.textContent = 'NaN';
+                            resetCalculatorAfterError();
                         } else {
                             let squared = Math.pow(lastResult,2);
                             let shifted = expressionStack.shift();
                             expressionStack.unshift({type: shifted.type, value: squared});
-                            mainDisplay.textContent = squared;
+                            mainDisplay.textContent = formatNumber(squared);
                         }
                     } else {
                         if (input.value.length >= 0) {
@@ -338,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             let squared = Math.pow(value, 2);
                             expressionStack.push({type: 'number', value: squared});
                             input.value = [];
-                            mainDisplay.textContent = squared;
+                            mainDisplay.textContent = formatNumber(squared);
                         }
                     }
                     break;
@@ -363,19 +392,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         
                         input.value = result.toString().split('');
-                        mainDisplay.textContent = result;
+                        mainDisplay.textContent = formatNumber(result);
                     } else if (input.value.length > 0) {
                         // Simple percentage (convert to decimal)
                         let value = parseFloat(input.value.join(''));
                         let percentage = value / 100;
                         input.value = percentage.toString().split('');
-                        mainDisplay.textContent = percentage;
+                        mainDisplay.textContent = formatNumber(percentage);
                     } else if (expressionStack.at(-1)?.type === 'number') {
                         // Percentage of result in expression stack
                         let value = parseFloat(expressionStack.at(-1).value);
                         let percentage = value / 100;
                         expressionStack[expressionStack.length - 1].value = percentage;
-                        mainDisplay.textContent = percentage;
+                        mainDisplay.textContent = formatNumber(percentage);
                     }
                     break;
                 case '√x':
@@ -383,22 +412,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         let lastResult = expressionStack.at(-1).value;
                         if (lastResult < 0 || isNaN(lastResult)) {
                             mainDisplay.textContent = 'NaN';
+                            resetCalculatorAfterError();
                         } else {
                             let sqrt = Math.sqrt(lastResult);
                             let shifted = expressionStack.shift();
                             expressionStack.unshift({type: shifted.type, value: sqrt});
-                            mainDisplay.textContent = sqrt;
+                            mainDisplay.textContent = formatNumber(sqrt);
                         }
                     } else {
                         if (input.value.length >= 0) {
                             let value = parseFloat(input.value.join(''));
                             if (value < 0 || isNaN(value)) {
                                 mainDisplay.textContent = "NaN";
+                                resetCalculatorAfterError();
                             } else {
                                 let sqrt = Math.sqrt(value);
                                 expressionStack.push({type: 'number', value: sqrt});
                                 input.value = [];
-                                mainDisplay.textContent = sqrt;
+                                mainDisplay.textContent = formatNumber(sqrt);
                             }
                         }
                     }
@@ -426,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 case '⌫':
                     if(input.value.length > 0) {
                         input.value.pop();
-                        mainDisplay.textContent = input.value.join('');
+                        mainDisplay.textContent = formatNumber(input.value.join(''));
                     }
                     break;
                 case '=':
